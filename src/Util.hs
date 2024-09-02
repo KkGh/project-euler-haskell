@@ -2,6 +2,8 @@ module Util where
 
 import Control.Monad
 import Control.Monad.ST
+import Data.Char (digitToInt)
+import Data.Function
 import Data.List
 import qualified Data.Vector.Unboxed as VU
 import qualified Data.Vector.Unboxed.Mutable as VUM
@@ -9,6 +11,11 @@ import qualified Data.Vector.Unboxed.Mutable as VUM
 ---------------------------------------
 -- Math
 ---------------------------------------
+
+-- 階乗
+factorial :: (Eq a, Num a) => a -> a
+factorial 0 = 1
+factorial n = n * factorial (n - 1)
 
 -- エラトステネスの篩
 -- Vector版
@@ -64,6 +71,23 @@ primeFactors n
       where
         (d, m) = n `divMod` f
 
+-- | 約数関数 σ_x(n): nの約数のx乗和を返す。
+--
+-- - σ_0(n): nの約数の個数
+-- - σ_1(n): nの約数の総和
+-- - σ_2(n): nの約数の2乗和
+--
+-- >>> divisorFunc 1 6
+-- 12
+divisorFunc :: (Integral a) => a -> a -> a
+divisorFunc _ 1 = 1
+divisorFunc x n
+  | x < 0 = error "x must be x >= 0"
+  | x == 0 = product $ map (\(_, a) -> a + 1) fs
+  | otherwise = product $ map (\(f, a) -> (f ^ ((a + 1) * x) - 1) `div` (f ^ x - 1)) fs
+  where
+    fs = map (\g -> (head g, genericLength g)) $ group $ primeFactors n
+
 -- | 自然数nの全ての約数を返す。O(√n)
 --
 -- >>> divisors 24
@@ -77,8 +101,25 @@ divisors n
     rs@(r : rs') = reverse (map snd fs)
 
 ---------------------------------------
+-- Digit
+---------------------------------------
+
+-- | 整数の各桁をリストに変換する。
+--
+-- >>> digits 1230
+-- [1,2,3,0]
+digits :: (Integral a, Show a) => a -> [Int]
+digits n = map digitToInt $ show n
+
+---------------------------------------
 -- List
 ---------------------------------------
+
+maximumOn :: (Foldable t, Ord b) => (a -> b) -> t a -> a
+maximumOn f = maximumBy (compare `on` f)
+
+minimumOn :: (Foldable t, Ord b) => (a -> b) -> t a -> a
+minimumOn f = minimumBy (compare `on` f)
 
 -- | 隣接する全てのN組をリストとして返す。
 --

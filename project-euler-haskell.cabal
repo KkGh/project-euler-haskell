@@ -51,7 +51,7 @@ extra-doc-files:    CHANGELOG.md
 -- extra-source-files:
 
 common warnings
-    ghc-options: -W
+    ghc-options: -W -Wno-unused-top-binds
 
 executable project-euler-haskell
     -- Import common warning flags.
@@ -62,7 +62,8 @@ executable project-euler-haskell
 
     -- Modules included in this executable, other than Main.
     other-modules:    Util, 
-                      P001, P002, P003, P004, P005, P006, P007, P008, P009, P010
+                      P001, P002, P003, P004, P005, P006, P007, P008, P009, P010,
+                      P011, P012, P013, P014, P015, P016, P017, P018, P019, P020
 
 
     -- LANGUAGE extensions used by modules in this package.
@@ -75,6 +76,7 @@ executable project-euler-haskell
                       containers,
                       vector,
                       time,
+                      split,
                       ghc
 
     -- Directories containing source files.
