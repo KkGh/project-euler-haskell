@@ -2,11 +2,13 @@ module Util where
 
 import Control.Monad
 import Control.Monad.ST
+import Data.Bifunctor
 import Data.Char (digitToInt)
 import Data.Function
 import Data.List
 import qualified Data.Vector.Unboxed as VU
 import qualified Data.Vector.Unboxed.Mutable as VUM
+import GHC.Natural
 
 ---------------------------------------
 -- Math
@@ -17,13 +19,28 @@ factorial :: (Eq a, Num a) => a -> a
 factorial 0 = 1
 factorial n = n * factorial (n - 1)
 
--- エラトステネスの篩
+-- | nが素数かどうかを判定する。
+-- 試し割り法 O(√N)
+isPrime :: (Integral a) => a -> Bool
+isPrime 2 = True
+isPrime n
+  | n <= 1 = False
+  | even n = False
+  | otherwise = go n 3
+  where
+    -- 3からNの平方根まで順に奇数で割っていく
+    go n f
+      | f * f > n = True
+      | n `mod` f == 0 = False
+      | otherwise = go n (f + 2)
+
+-- エラトステネスの篩。
 -- Vector版
 primeSieveV :: Int -> VU.Vector Bool
 primeSieveV n = runST $ do
   -- 0<=i<=n の範囲をTrueで初期化
   v <- VUM.replicate (n + 1) True
-  let sqrtN = round $ sqrt $ fromIntegral n
+  let sqrtN = round $ sqrt $ fi n
 
   VUM.write v 0 False
   when (n >= 1) $ VUM.write v 1 False
@@ -97,8 +114,46 @@ divisors n
   | n <= 0 = error $ "Non-natural number"
   | otherwise = map fst fs ++ (if r * r == n then rs' else rs)
   where
-    fs = [(x, n `div` x) | x <- [1 .. floor (sqrt (fromIntegral n))], n `mod` x == 0]
+    fs = [(x, n `div` x) | x <- [1 .. floor (sqrt (fi n))], n `mod` x == 0]
     rs@(r : rs') = reverse (map snd fs)
+
+-- 累乗の剰余
+powMod :: (Integral a) => a -> a -> a -> a
+powMod x y m = fi $ powModNatural (fi x) (fi y) (fi m)
+
+---------------------------------------
+-- Sequence
+---------------------------------------
+
+-- | 0から始まるフィボナッチ数列
+--
+-- >>> take 10 fibs
+-- [0,1,1,2,3,5,8,13,21,34]
+fibs :: [Integer]
+fibs = 0 : 1 : go 0 1
+  where
+    go x y = z : go y z
+      where
+        z = x + y
+
+-- | 1から始まるフィボナッチ数列
+--
+-- >>> take 10 fibs1
+-- [1,1,2,3,5,8,13,21,34,55]
+fibs1 :: [Integer]
+fibs1 = drop 1 fibs
+
+---------------------------------------
+-- Combinatorics
+---------------------------------------
+
+-- | リストの全てのk-重複組合せを返す。
+--
+-- >>> combinationsRep 2 "abc"
+-- ["aa","ab","ac","bb","bc","cc"]
+combinationsRep :: Int -> [a] -> [[a]]
+combinationsRep 0 _ = [[]]
+combinationsRep k xs = [head ys : zs | ys <- init $ tails xs, zs <- combinationsRep (k - 1) ys]
 
 ---------------------------------------
 -- Digit
@@ -110,6 +165,29 @@ divisors n
 -- [1,2,3,0]
 digits :: (Integral a, Show a) => a -> [Int]
 digits n = map digitToInt $ show n
+
+-- | 整数値の桁数を返す。
+digitCount :: (Integral a, Show a) => a -> Int
+digitCount n = length $ show n
+
+-- | 桁リストを整数に変換する。
+--
+-- >>> digitsToInt [1,2,3,0]
+-- 1230
+digitsToInt :: (Integral a) => [a] -> a
+digitsToInt = foldl1' (\acc x -> acc * 10 + x)
+
+-- | 0以上の整数を桁リストに変換する。
+--
+-- >>> intToDigits 1230
+-- [1,2,3,0]
+intToDigits :: Int -> [Int]
+intToDigits n
+  | n < 0 = error "n must be a non-negative integer"
+  | n < 10 = [n]
+  | otherwise = intToDigits d ++ [m]
+  where
+    (d, m) = n `divMod` 10
 
 ---------------------------------------
 -- List
@@ -128,9 +206,35 @@ minimumOn f = minimumBy (compare `on` f)
 adjacents :: Int -> [a] -> [[a]]
 adjacents n xs = filter (\l -> length l == n) $ map (take n) $ tails xs
 
+-- | Compute all the ways of removing a single element from a list.
+--
+-- >>> holes [1,2,3]
+-- [(1,[2,3]),(2,[1,3]),(3,[1,2])]
+holes :: [a] -> [(a, [a])]
+holes [] = []
+holes (x : xs) = (x, xs) : (fmap . second) (x :) (holes xs)
+
 ---------------------------------------
--- Debug
+-- IO
 ---------------------------------------
+
+readLines :: FilePath -> IO [String]
+readLines fileName = lines <$> readFile fileName
+
+readInt :: String -> Int
+readInt s = read s :: Int
+
+---------------------------------------
+-- Miscs
+---------------------------------------
+
+fi n = fromIntegral n
+
+fst3 (x, _, _) = x
+
+snd3 (_, y, _) = y
+
+trd3 (_, _, z) = z
 
 printList xs = mapM_ (\(i, x) -> putStrLn $ show i ++ "\t" ++ show x) $ zip [0 ..] xs
 
