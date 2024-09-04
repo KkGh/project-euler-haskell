@@ -81,6 +81,7 @@ executable project-euler-haskell
                       split,
                       ghc,
                       directory,
+                      safe,
                       criterion
 
     -- Directories containing source files.

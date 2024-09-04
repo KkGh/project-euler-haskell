@@ -159,13 +159,6 @@ combinationsRep k xs = [head ys : zs | ys <- init $ tails xs, zs <- combinations
 -- Digit
 ---------------------------------------
 
--- | 整数の各桁をリストに変換する。
---
--- >>> digits 1230
--- [1,2,3,0]
-digits :: (Integral a, Show a) => a -> [Int]
-digits n = map digitToInt $ show n
-
 -- | 整数値の桁数を返す。
 digitCount :: (Integral a, Show a) => a -> Int
 digitCount n = length $ show n
@@ -198,6 +191,9 @@ maximumOn f = maximumBy (compare `on` f)
 
 minimumOn :: (Foldable t, Ord b) => (a -> b) -> t a -> a
 minimumOn f = minimumBy (compare `on` f)
+
+groupOn :: (Eq a) => (t -> a) -> [t] -> [[t]]
+groupOn f = groupBy (\a b -> f a == f b)
 
 -- | 隣接する全てのN組をリストとして返す。
 --

@@ -1,5 +1,5 @@
 import Data.Time
-import qualified P030 as P
+import qualified P040 as P
 
 main = do
   s <- getCurrentTime
