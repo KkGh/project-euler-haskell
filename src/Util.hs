@@ -6,6 +6,7 @@ import Data.Bifunctor
 import Data.Char (digitToInt)
 import Data.Function
 import Data.List
+import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as VU
 import qualified Data.Vector.Unboxed.Mutable as VUM
 import GHC.Natural
@@ -147,6 +148,30 @@ fibs1 = drop 1 fibs
 -- Combinatorics
 ---------------------------------------
 
+-- | リストの全てのペアを返す。
+--
+-- >>> pairs [1,2,3,4]
+-- [(1,2),(1,3),(1,4),(2,3),(2,4),(3,4)]
+pairs :: [a] -> [(a, a)]
+pairs xs = [(vs V.! i, vs V.! j) | i <- [0 .. len - 1], j <- [i + 1 .. len - 1]]
+  where
+    vs = V.fromList xs
+    len = V.length vs
+
+-- | リストの全てのk-組合せを返す。
+--
+-- >>> combinations 3 "abcd"
+-- ["abc","abd","acd","bcd"]
+combinations :: Int -> [a] -> [[a]]
+combinations k xs
+  | k < 0 = []
+  | k == 0 = [[]]
+  | otherwise = go k xs
+  where
+    go 0 _ = [[]]
+    go _ [] = []
+    go n (y : ys) = map (y :) (go (n - 1) ys) ++ go n ys
+
 -- | リストの全てのk-重複組合せを返す。
 --
 -- >>> combinationsRep 2 "abc"
@@ -209,6 +234,17 @@ adjacents n xs = filter (\l -> length l == n) $ map (take n) $ tails xs
 holes :: [a] -> [(a, [a])]
 holes [] = []
 holes (x : xs) = (x, xs) : (fmap . second) (x :) (holes xs)
+
+-- | リストの先頭と末尾から、指定した条件に一致する要素を削除する。
+--
+-- >>> trimOn (== '#') "#apple#banana##"
+-- "apple#banana"
+trimOn :: (a -> Bool) -> [a] -> [a]
+trimOn p = f . f
+  where
+    f = dropWhile p . reverse
+
+trim c = trimOn (== c)
 
 ---------------------------------------
 -- IO
