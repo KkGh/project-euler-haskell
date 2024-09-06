@@ -151,6 +151,20 @@ fibs1 = drop 1 fibs
 -- Combinatorics
 ---------------------------------------
 
+-- | 組み合わせの総数 nCk を計算する。O(k)
+--
+-- >>> [combination 3 k | k <- [0..3]]
+-- [1,3,3,1]
+combination :: (Integral a) => a -> a -> a
+combination n k
+  | k < 0 || n < k = error "combination nCk must be 0<=k<=n"
+  | k > n `div` 2 = go n (n - k)
+  | otherwise = go n k
+  where
+    go _ 0 = 1
+    -- nCk = n-1Ck-1 * n/k
+    go n k = go (n - 1) (k - 1) * n `div` k
+
 -- | リストの全てのペアを返す。
 --
 -- >>> pairs [1,2,3,4]
@@ -183,6 +197,19 @@ combinationsRep :: Int -> [a] -> [[a]]
 combinationsRep 0 _ = [[]]
 combinationsRep k xs = [head ys : zs | ys <- init $ tails xs, zs <- combinationsRep (k - 1) ys]
 
+-- | 重複順列を列挙する。
+--
+-- >>> permutationsMultiset [('a',2),('b',2)]
+-- ["aabb","abba","abab","bbaa","baab","baba"]
+permutationsMultiset :: [(a, Int)] -> [[a]]
+permutationsMultiset [] = [[]]
+permutationsMultiset sets =
+  [ x : xs
+    | ((x, c), rest) <- holes sets,
+      let sets' = if c > 1 then (x, c - 1) : rest else rest,
+      xs <- permutationsMultiset sets'
+  ]
+
 ---------------------------------------
 -- Digit
 ---------------------------------------
@@ -202,7 +229,7 @@ digitsToInt = foldl1' (\acc x -> acc * 10 + x)
 --
 -- >>> intToDigits 1230
 -- [1,2,3,0]
-intToDigits :: Int -> [Int]
+intToDigits :: (Integral a) => a -> [a]
 intToDigits n
   | n < 0 = error "n must be a non-negative integer"
   | n < 10 = [n]
