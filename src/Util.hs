@@ -3,7 +3,6 @@ module Util where
 import Control.Monad
 import Control.Monad.ST
 import Data.Bifunctor
-import Data.Char (digitToInt)
 import Data.Function
 import Data.List
 import qualified Data.Vector as V
@@ -89,6 +88,10 @@ primeFactors n
       where
         (d, m) = n `divMod` f
 
+-- | nの素因数とその指数をタプルリストとして返す。
+primeFactorsGroup :: (Integral a, Num b) => a -> [(a, b)]
+primeFactorsGroup n = map (\g -> (head g, genericLength g)) $ group $ primeFactors n
+
 -- | 約数関数 σ_x(n): nの約数のx乗和を返す。
 --
 -- - σ_0(n): nの約数の個数
@@ -112,7 +115,7 @@ divisorFunc x n
 -- [1,2,3,4,6,8,12,24]
 divisors :: (Integral a) => a -> [a]
 divisors n
-  | n <= 0 = error $ "Non-natural number"
+  | n <= 0 = error "Non-natural number"
   | otherwise = map fst fs ++ (if r * r == n then rs' else rs)
   where
     fs = [(x, n `div` x) | x <- [1 .. floor (sqrt (fi n))], n `mod` x == 0]
@@ -244,7 +247,12 @@ trimOn p = f . f
   where
     f = dropWhile p . reverse
 
+trim :: (Eq a) => a -> [a] -> [a]
 trim c = trimOn (== c)
+
+allEqual :: (Eq a) => [a] -> Bool
+allEqual [] = True
+allEqual (x : xs) = all (== x) xs
 
 ---------------------------------------
 -- IO
@@ -260,7 +268,8 @@ readInt s = read s :: Int
 -- Miscs
 ---------------------------------------
 
-fi n = fromIntegral n
+fi :: (Integral a, Num b) => a -> b
+fi = fromIntegral
 
 fst3 (x, _, _) = x
 
