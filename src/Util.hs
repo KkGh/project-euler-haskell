@@ -14,6 +14,13 @@ import GHC.Natural
 -- Math
 ---------------------------------------
 
+-- 自然数nが平方数かどうかを判定する。
+-- Double精度の問題により、nはIntの範囲に限られる。
+isSquareInt :: Int -> Bool
+isSquareInt n = (r * r) == n
+  where
+    r = round $ sqrt $ fromIntegral n
+
 -- 階乗
 factorial :: (Eq a, Num a) => a -> a
 factorial 0 = 1
@@ -124,6 +131,13 @@ divisors n
 -- 累乗の剰余
 powMod :: (Integral a) => a -> a -> a -> a
 powMod x y m = fi $ powModNatural (fi x) (fi y) (fi m)
+
+-- | 累積和
+--
+-- >>> cumsum [1,2,3,4,5]
+-- [1,3,6,10,15]
+cumsum :: (Num a) => [a] -> [a]
+cumsum = scanl1 (+)
 
 ---------------------------------------
 -- Sequence
@@ -297,6 +311,9 @@ readInt s = read s :: Int
 
 fi :: (Integral a, Num b) => a -> b
 fi = fromIntegral
+
+isqrt :: (Integral a) => a -> a
+isqrt n = floor $ sqrt $ fi n
 
 fst3 (x, _, _) = x
 
