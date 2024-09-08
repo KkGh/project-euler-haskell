@@ -128,6 +128,18 @@ divisors n
     fs = [(x, n `div` x) | x <- [1 .. floor (sqrt (fi n))], n `mod` x == 0]
     rs@(r : rs') = reverse (map snd fs)
 
+-- | オイラーのトーシェント関数 φ(n) 
+-- nと互いに素である1以上n以下の自然数の個数を返す。O(√N)
+--
+-- >>> totient 6
+-- 2
+totient :: (Integral a) => a -> a
+totient 1 = 1
+totient n = round $ fi n * product (map (\p -> 1 - (1 / p)) ps)
+  where
+    -- 素因数分解から φ(n) を計算する
+    ps = map fi $ uniq $ primeFactors n
+
 -- 累乗の剰余
 powMod :: (Integral a) => a -> a -> a -> a
 powMod x y m = fi $ powModNatural (fi x) (fi y) (fi m)
@@ -294,6 +306,24 @@ trim c = trimOn (== c)
 allEqual :: (Eq a) => [a] -> Bool
 allEqual [] = True
 allEqual (x : xs) = all (== x) xs
+
+-- | 異なる値が連続する先頭部分リストを返す。
+--
+-- >>> takeWhileChange [3,2,1,1,1]
+-- [3,2,1]
+takeWhileChange :: (Eq a) => [a] -> [a]
+takeWhileChange [] = []
+takeWhileChange [x] = [x]
+takeWhileChange (x : y : rest)
+  | x == y = [x]
+  | otherwise = x : takeWhileChange (y : rest)
+
+-- | 連続する同じ要素を削除する。O(n)
+--
+-- >>> uniq "1123321"
+-- "12321"
+uniq :: (Eq a) => [a] -> [a]
+uniq = map head . group
 
 ---------------------------------------
 -- IO
