@@ -3,11 +3,13 @@ module Util where
 import Control.Monad
 import Control.Monad.ST
 import Data.Bifunctor
+import Data.Foldable
 import Data.Function
 import Data.List
 import qualified Data.Vector as V
 import qualified Data.Vector.Unboxed as VU
 import qualified Data.Vector.Unboxed.Mutable as VUM
+import Debug.Trace
 import GHC.Natural
 
 ---------------------------------------
@@ -70,6 +72,37 @@ primeSieveV n = runST $ do
 primeSieve :: Int -> [Int]
 primeSieve n = VU.ifoldr' (\i b acc -> if b then i : acc else acc) [] $ primeSieveV n
 
+-- エラトステネスの篩
+-- minFactor[i] はiの最小の素因数。
+primeSieveVF :: Int -> (VU.Vector Bool, VU.Vector Int)
+primeSieveVF n = runST $ do
+  -- 0<=i<=n のベクトルを初期化
+  prime <- VUM.replicate (n + 1) True
+  minFactor <- VUM.generate (n + 1) id
+  let sqrtN = round $ sqrt $ fromIntegral n
+
+  VUM.write prime 0 False
+  VUM.write prime 1 False
+
+  -- 偶数を篩い落とす
+  for_ [4, 6 .. n] $ \i -> do
+    VUM.write prime i False
+    VUM.write minFactor i 2
+
+  -- 素数の倍数を篩い落とす
+  forM_ [3, 5 .. sqrtN] $ \i -> do
+    isPrime <- VUM.read prime i
+    when isPrime $ do
+      forM_ [i * i, i * i + 2 * i .. n] $ \j -> do
+        VUM.write prime j False
+        -- 合成数には最小の素因数を設定する
+        mf <- VUM.read minFactor j
+        when (mf == j) (VUM.write minFactor j i)
+
+  p <- VU.freeze prime
+  f <- VU.freeze minFactor
+  return (p, f)
+
 -- | 自然数nを素因数分解する。O(√N)
 --
 -- >>> primeFactors 24
@@ -98,6 +131,16 @@ primeFactors n
 -- | nの素因数とその指数をタプルリストとして返す。
 primeFactorsGroup :: (Integral a, Num b) => a -> [(a, b)]
 primeFactorsGroup n = map (\g -> (head g, genericLength g)) $ group $ primeFactors n
+
+-- | minFactorによる素因数分解。
+--
+-- >>> primeFactorsMF (snd $ primeSieveVF 120) 120
+-- [2,2,2,3,5]
+primeFactorsMF :: VU.Vector Int -> Int -> [Int]
+primeFactorsMF _ 1 = []
+primeFactorsMF minFactor n = p : primeFactorsMF minFactor (n `div` p)
+  where
+    p = minFactor VU.! n
 
 -- | 約数関数 σ_x(n): nの約数のx乗和を返す。
 --
@@ -128,7 +171,7 @@ divisors n
     fs = [(x, n `div` x) | x <- [1 .. floor (sqrt (fi n))], n `mod` x == 0]
     rs@(r : rs') = reverse (map snd fs)
 
--- | オイラーのトーシェント関数 φ(n) 
+-- | オイラーのトーシェント関数 φ(n)
 -- nと互いに素である1以上n以下の自然数の個数を返す。O(√N)
 --
 -- >>> totient 6
@@ -139,6 +182,29 @@ totient n = round $ fi n * product (map (\p -> 1 - (1 / p)) ps)
   where
     -- 素因数分解から φ(n) を計算する
     ps = map fi $ uniq $ primeFactors n
+
+-- | 0<=i<=n のトーシェント関数 φ(i) を全て計算する。O(n log log n)
+--
+-- >>> totientSieve 10
+-- [0,1,1,2,2,4,2,6,4,6,4]
+totientSieve :: Int -> VU.Vector Int
+totientSieve n = runST $ do
+  -- 正の整数iの素因数を p1, p2, ..., pk とすると、φ(i)は以下で計算できる。
+  --   φ(i) = i * (p1-1)/p1 * (p2-1)/p2 * ... * (pk-1)/pk
+  -- 篩により φ(i) の値を更新していく。
+
+  -- φ(i)=i で初期化
+  phi <- VUM.generate (n + 1) id
+
+  for_ [2 .. n] $ \i -> do
+    phi_i <- VUM.read phi i
+
+    when (phi_i == i) $ do
+      for_ [i, i * 2 .. n] $ \j -> do
+        phi_j <- VUM.read phi j
+        VUM.write phi j (phi_j * (i - 1) `div` i)
+
+  VU.freeze phi
 
 -- 累乗の剰余
 powMod :: (Integral a) => a -> a -> a -> a
@@ -354,3 +420,5 @@ trd3 (_, _, z) = z
 printList xs = mapM_ (\(i, x) -> putStrLn $ show i ++ "\t" ++ show x) $ zip [0 ..] xs
 
 printList1 xs = mapM_ (\(i, x) -> putStrLn $ show i ++ "\t" ++ show x) $ zip [1 ..] xs
+
+traceShow' x = traceShow x x
