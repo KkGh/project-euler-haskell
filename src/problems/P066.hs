@@ -27,9 +27,9 @@ convergents a0 as = zipWith (%) nums denoms
 -- | 自然数の平方根を連分数展開し、初項と循環節からなるリスト [n0,n1,n2,...,n_m] を返す。
 -- リスト末尾の要素 n_m は循環節の最終項であり、n0の2倍となる。
 --
--- >>> expandContinuedFractionSqrt 7
+-- >>> continuedFractionSqrt 7
 -- [2,1,1,1,4]
--- >>> expandContinuedFractionSqrt 4
+-- >>> continuedFractionSqrt 4
 -- [2]
 continuedFractionSqrt :: (Integral a) => a -> [a]
 continuedFractionSqrt x = n0 : ns

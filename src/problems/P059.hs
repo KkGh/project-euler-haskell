@@ -9,7 +9,7 @@ import Data.List.Split
 
 -- | リストから長さnの全ての重複順列を生成する。
 --
--- >>> repetition 2 ['a', 'b', 'c']
+-- >>> repetitions 2 ['a', 'b', 'c']
 -- ["aa","ab","ac","ba","bb","bc","ca","cb","cc"]
 repetitions :: (Integral a) => a -> [b] -> [[b]]
 repetitions 0 _ = [[]]
