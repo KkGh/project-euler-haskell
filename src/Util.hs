@@ -254,6 +254,28 @@ partitions n = runST $ do
 
   V.freeze v
 
+-- | 原始ピタゴラス数 (primitive Pythagorean triples)
+-- a^2+b^2=c^2 を満たし、互いに素な自然数の組 (a,b,c) を全て返す。
+-- ただし、a < b
+--
+-- >>> take 5 pythagoreanTriples
+-- [(3,4,5),(5,12,13),(8,15,17),(7,24,25),(20,21,29)]
+pythagoreanTriples :: [(Integer, Integer, Integer)]
+pythagoreanTriples = do
+  let xs =
+        [ (m, n)
+          | m <- [2 ..],
+            n <- [1 .. m - 1],
+            (odd m && even n || even m && odd n) && gcd m n == 1
+        ]
+  map f xs
+  where
+    f (m, n) = if o < e then (o, e, c) else (e, o, c)
+      where
+        o = m ^ 2 - n ^ 2
+        e = 2 * m * n
+        c = m ^ 2 + n ^ 2
+
 ---------------------------------------
 -- Sequence
 ---------------------------------------
@@ -459,3 +481,8 @@ printList xs = mapM_ (\(i, x) -> putStrLn $ show i ++ "\t" ++ show x) $ zip [0 .
 printList1 xs = mapM_ (\(i, x) -> putStrLn $ show i ++ "\t" ++ show x) $ zip [1 ..] xs
 
 traceShow' x = traceShow x x
+
+(!?) :: [a] -> Int -> Maybe a
+xs !? n
+  | n < 0 = Nothing
+  | otherwise = foldr (\x r k -> case k of 0 -> Just x; _ -> r (k - 1)) (const Nothing) xs n

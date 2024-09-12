@@ -69,7 +69,8 @@ executable project-euler-haskell
                       P041, P042, P043, P044, P045, P046, P047, P048, P049, P050,
                       P051, P052, P053, P054, P055, P056, P057, P058, P059, P060,
                       P061, P062, P063, P064, P065, P066, P067, P068, P069, P070,
-                      P071, P072, P073, P074, P075, P076, P077, P078, P079, P080
+                      P071, P072, P073, P074, P075, P076, P077, P078, P079, P080,
+                      P081, P082, P083, P085, P086, P087, P088, P089
 
 
     -- LANGUAGE extensions used by modules in this package.
@@ -86,6 +87,7 @@ executable project-euler-haskell
                       ghc,
                       directory,
                       safe,
+                      heaps,
                       criterion
 
     -- Directories containing source files.
