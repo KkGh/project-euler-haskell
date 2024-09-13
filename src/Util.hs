@@ -156,6 +156,7 @@ primeFactorsMF minFactor n = p : primeFactorsMF minFactor (n `div` p)
 divisorFunc :: (Integral a) => a -> a -> a
 divisorFunc _ 1 = 1
 divisorFunc x n
+  | n < 1 = error "n must be n >= 1"
   | x < 0 = error "x must be x >= 0"
   | x == 0 = product $ map (\(_, a) -> a + 1) fs
   | otherwise = product $ map (\(f, a) -> (f ^ ((a + 1) * x) - 1) `div` (f ^ x - 1)) fs
