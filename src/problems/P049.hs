@@ -4,13 +4,13 @@ import Data.List
 import qualified Data.Set as S
 import GHC.Utils.Misc
 import Safe
-import Util (allEqual, combinations, digitsToInt, intToDigits, primeSieve)
+import Util (allEqual, combinations, digitsToInt, digits, primeSieve)
 
 -- |
 --
 -- >>> permutationsInt 231
 -- [231,321,132,312,123,213]
-permutationsInt n = map digitsToInt $ permutations $ intToDigits n
+permutationsInt n = map digitsToInt $ permutations $ digits n
 
 diffs [] = []
 diffs [_] = []

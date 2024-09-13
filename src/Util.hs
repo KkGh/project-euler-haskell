@@ -1,8 +1,9 @@
-module Util where
+module Util (module Util) where
 
 import Control.Monad
 import Control.Monad.ST
 import Data.Bifunctor
+import Data.Char
 import Data.Foldable
 import Data.Function
 import Data.List
@@ -378,15 +379,12 @@ digitsToInt = foldl1' (\acc x -> acc * 10 + x)
 
 -- | 0以上の整数を桁リストに変換する。
 --
--- >>> intToDigits 1230
+-- >>> digits 1230
 -- [1,2,3,0]
-intToDigits :: (Integral a) => a -> [a]
-intToDigits n
-  | n < 0 = error "n must be a non-negative integer"
-  | n < 10 = [n]
-  | otherwise = intToDigits d ++ [m]
-  where
-    (d, m) = n `divMod` 10
+digits :: (Integral a, Show a) => a -> [Int]
+digits n
+  | n < 0 = error $ "n must be a non-negative integer: " ++ show n
+  | otherwise = map digitToInt $ show n
 
 ---------------------------------------
 -- List

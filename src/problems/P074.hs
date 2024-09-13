@@ -6,7 +6,7 @@ import Data.Array
 import qualified Data.Set as S
 import qualified Data.Vector.Unboxed as VU
 import GHC.Utils.Misc (lengthIs)
-import Util (intToDigits)
+import Util (digits)
 
 -- | リストを重複のない先頭部分リストと残りのリストに分割する。
 -- 2つ目のリストが空でない場合、その先頭要素は必ず1つ目のリストに含まれる。
@@ -31,8 +31,8 @@ takeWhileUniques = fst . splitOnDuplicate
 main = do
   -- digit factorial sum テーブル
   let limit = 10 ^ 6
-      facts = VU.fromList [1, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
-      sfd n = sum $ map (facts VU.!) $ intToDigits n
+      facts = VU.fromList [1 :: Int, 1, 2, 6, 24, 120, 720, 5040, 40320, 362880]
+      sfd n = sum $ map (facts VU.!) $ digits n
       next n
         | n <= limit = memo ! n
         | otherwise = sfd n

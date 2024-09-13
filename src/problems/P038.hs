@@ -1,9 +1,9 @@
 module P038 (main) where
 
 import Data.List
-import Util (intToDigits, readInt)
+import Util (digits, readInt)
 
-isPandigital n = sort (intToDigits n) == [1 .. 9]
+isPandigital n = sort (digits n) == [1 .. 9]
 
 main = do
   -- 整数がパンデジタル数かどうか。

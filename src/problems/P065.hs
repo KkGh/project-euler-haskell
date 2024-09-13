@@ -1,7 +1,7 @@
 module P065 (main) where
 
 import Data.Ratio
-import Util (intToDigits)
+import Util (digits)
 
 -- | 連分数展開の1番目～n番目の近似分数を返す。
 -- > p_n / q_n = [a0; a1, a2, ..., a_n-1]
@@ -26,4 +26,4 @@ convergents a0 as = zipWith (%) nums denoms
 main = do
   let es = take 99 $ concatMap (\k -> [1, 2 * k, 1]) [1 ..]
   -- 2ms
-  print $ sum $ intToDigits $ numerator $ last $ convergents 2 es
+  print $ sum $ digits $ numerator $ last $ convergents 2 es

@@ -2,14 +2,14 @@ module P070 (main) where
 
 import Data.List
 import Data.Maybe
-import Util (fi, intToDigits, minimumOn, primeSieve, totient)
+import Util (fi, digits, minimumOn, primeSieve, totient)
 
 main = do
   -- φ(n) がnの並べ替えになるようなn (1 < n < 10^7) の中で、比 n/φ(n) が最小となるものは？
 
   -- n/φ(n) が小さくなるのは、φ(n)が大きい＝nと互いに素な数が多い＝nが奇数のとき
   -- ただし、素数に totient permutation となる数は存在しない
-  let isPerm (n, t) = sort (intToDigits n) == sort (intToDigits t)
+  let isPerm (n, t) = sort (digits n) == sort (digits t)
 
   -- m,nが互いに素な場合、φ(mn)=φ(m)φ(n)
   let totientCo m n = totient m * totient n

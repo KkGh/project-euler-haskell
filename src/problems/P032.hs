@@ -28,9 +28,9 @@ main = do
           && null (bs `intersect` cs)
         where
           c = a * b
-          as = intToDigits a
-          bs = intToDigits b
-          cs = intToDigits c
+          as = digits a
+          bs = digits b
+          cs = digits c
           totalLen = digitCount a + digitCount b + digitCount c
   let res = concatMap go [2 .. 99]
   let prods = nubInt $ map trd3 res

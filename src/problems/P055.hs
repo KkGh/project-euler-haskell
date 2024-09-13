@@ -15,7 +15,7 @@ isPalindrome [] = True
 isPalindrome [_] = True
 isPalindrome xs = head xs == last xs && isPalindrome (init . tail $ xs)
 
-isPalindromeInt n = isPalindrome $ intToDigits n
+isPalindromeInt n = isPalindrome $ digits n
 
 -- 自然数nがリクレル数かどうかを返す。
 -- リクレル数：桁を前後反転させたものと自身との和を求める操作を繰り返したとき、回文数にならない自然数。

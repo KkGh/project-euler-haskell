@@ -1,7 +1,7 @@
 module P052 (main) where
 
 import Data.List
-import Util (intToDigits)
+import Util (digits)
 
 main = do
   -- 77ms
@@ -9,5 +9,5 @@ main = do
   where
     isPermuted x =
       all
-        (\x' -> sort (intToDigits x) == sort (intToDigits x'))
+        (\x' -> sort (digits x) == sort (digits x'))
         [x, 2 * x, 3 * x, 4 * x, 5 * x, 6 * x]

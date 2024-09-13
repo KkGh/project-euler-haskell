@@ -3,7 +3,7 @@ module P037 (main) where
 import Data.List
 import qualified Data.Vector.Unboxed as VU
 import GHC.Plugins
-import Util (digitsToInt, intToDigits, primeSieveV)
+import Util (digitsToInt, digits, primeSieveV)
 
 trueIndices :: VU.Vector Bool -> [Int]
 trueIndices = VU.ifoldr' (\i b acc -> if b then i : acc else acc) []
@@ -16,7 +16,7 @@ main = do
   let res = filter f $ dropWhile (< 10) ps
         where
           f p = do
-            let truncates = inits (intToDigits p) ++ tails (intToDigits p)
+            let truncates = inits (digits p) ++ tails (digits p)
             let ns = map digitsToInt $ filter notNull truncates
             all isPrime ns
 
